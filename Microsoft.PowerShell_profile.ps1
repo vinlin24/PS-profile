@@ -160,6 +160,7 @@ function Start-ProjectDir {
 
 Set-Alias -Name "init" -Value "Start-ProjectDir"
 
+<# Open one of my repos as a workspace or directory #>
 function Open-CodeWorkspace {
     param (
         [Parameter(Mandatory = $true)]
@@ -180,6 +181,7 @@ function Open-CodeWorkspace {
         # I only save one code-workspace per repo but who knows
         if ($workspaceFile -is [array]) {
             $workspaceFile = $workspaceFile[0]
+            Start-Process $workspaceFile.PSPath
         }
         # No code-workspace file at all, code.exe the directory:
         elseif ($null -eq $workspaceFile) {
