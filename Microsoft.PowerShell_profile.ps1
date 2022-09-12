@@ -217,6 +217,14 @@ function Open-CodeWorkspace {
 
 Set-Alias -Name "workspace" -Value "Open-CodeWorkspace"
 
+<# Open this file's containing directory in VS Code #>
+function Open-ThisProfile {
+    code (Split-Path $profile -Parent)
+    exit
+}
+
+Set-Alias -Name "profile" -Value "Open-ThisProfile"
+
 # Display current working directory on startup
 Clear-Host
 Write-Host (Get-Location).ToString()
