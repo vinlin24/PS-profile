@@ -160,6 +160,61 @@ function Start-ProjectDir {
 
 Set-Alias -Name "init" -Value "Start-ProjectDir"
 
+function Open-CodeWorkspace {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $Name,
+        [Parameter()]
+        [switch] $New
+    )
+
+    # Assume the repos folder isn't gonna move lmao
+    $reposDirPath = Join-Path $home "repos"
+    $repos = Get-ChildItem $reposDirPath -Directory
+    $repoList = ($repos | Where-Object { $_.Name -like "*$Name*" })
+
+    # If such a repository exists:
+    if ($null -ne $repoList) {
+        $repoPath = Join-Path $reposDirPath $repoList[0].Name
+        $workspaceFile = Get-ChildItem $repoPath "*.code-workspace"
+        # I only save one code-workspace per repo but who knows
+        if ($workspaceFile -is [array]) {
+            $workspaceFile = $workspaceFile[0]
+        }
+        # No code-workspace file at all, code.exe the directory:
+        elseif ($null -eq $workspaceFile) {
+            code $repoPath
+        }
+        # Invoke the code-workspace file
+        else {
+            Start-Process $workspaceFile.PSPath
+        }
+        # Close terminal upon opening VS Code
+        exit
+    }
+
+    # Otherwise if -New is used, make the repository:
+    elseif ($New) {
+        $newRepoPath = Join-Path $reposDirPath $Name
+        # git init <directory> makes the directory automatically
+        # "-b main" to specify starting branch as "main" instead of "master"
+        git init -b main $newRepoPath
+        code $newRepoPath
+        # Close terminal upon opening VS Code
+        exit
+    }
+
+    # Otherwise list the names of existing repos:
+    else {
+        Write-Host "No repository found in $reposDirPath with a name like '$Name'." -ForegroundColor Red
+        $reposNames = ($repos | ForEach-Object { $_.Name }) -join "`n"
+        Write-Host "The full list of repositories at this directory is:" -ForegroundColor Yellow
+        Write-Host $reposNames
+    }
+}
+
+Set-Alias -Name "workspace" -Value "Open-CodeWorkspace"
+
 # Display current working directory on startup
 Clear-Host
 Write-Host (Get-Location).ToString()
