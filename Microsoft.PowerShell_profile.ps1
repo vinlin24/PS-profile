@@ -225,6 +225,20 @@ function Open-ThisProfile {
 
 Set-Alias -Name "profile" -Value "Open-ThisProfile"
 
+<# Update pip to latest version #>
+function Update-PipVersion {
+    python -m pip install --upgrade pip
+}
+
+Set-Alias -Name "updatepip" -Value "Update-PipVersion"
+
+<# Remove all __pycache__ directories and contents #>
+function Remove-AllPycache {
+    Get-ChildItem -Recurse __pycache__ | Remove-Item -Recurse
+}
+
+Set-Alias -Name "pycache" -Value "Remove-AllPycache"
+
 # Display current working directory on startup
 Clear-Host
 Write-Host (Get-Location).ToString()
