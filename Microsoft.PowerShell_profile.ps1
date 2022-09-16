@@ -280,6 +280,5 @@ function Reset-VirtualEnv {
 
 Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
 
-# Display current working directory on startup
+# No welcome text please
 Clear-Host
-Write-Host (Get-Location).ToString()
