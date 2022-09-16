@@ -239,6 +239,47 @@ function Remove-AllPycache {
 
 Set-Alias -Name "pycache" -Value "Remove-AllPycache"
 
+<# Reinstall the virtual environment in current directory #>
+function Reset-VirtualEnv {
+    param (
+        [Parameter()]
+        [string] $Name = ".venv"
+    )
+
+    # Validate path
+    if (!(Test-Path $Name)) {
+        Write-Host "Could not find a file named $Name, aborted." -ForegroundColor Red
+        return
+    }
+
+    # Try to deactivate, then delete
+    try { deactivate } catch {}
+    Remove-Item $Name -Recurse
+    Write-Host "Removed $Name" -ForegroundColor Yellow
+
+    # Recreate venv
+    Write-Host "Creating new virtual environment $Name..." -NoNewline -ForegroundColor Yellow
+    python -m venv $Name
+    Write-Host "Done." -ForegroundColor Green
+
+    # Activate venv
+    & "$Name\Scripts\Activate.ps1"
+
+    # Update pip
+    Update-PipVersion
+
+    # Reinstall dependencies, if found
+    if (Test-Path "requirements.txt") {
+        pip install -r requirements.txt
+        Write-Host "Installed dependencies from requirements.txt." -ForegroundColor Yellow
+    }
+    else {
+        Write-Host "WARNING: Could not find a requirements.txt in current directory." -ForegroundColor Yellow
+    }
+}
+
+Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
+
 # Display current working directory on startup
 Clear-Host
 Write-Host (Get-Location).ToString()
