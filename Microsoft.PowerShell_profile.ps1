@@ -280,6 +280,30 @@ function Reset-VirtualEnv {
 
 Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
 
+<# Shortcut for getting source path of an executable #>
+function Get-Source {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $Command,
+        [Parameter()]
+        [switch] $Open
+    )
+    $source = (Get-Command $Command).Source
+    if ($Open) {
+        if (Test-Path $source) {
+            Invoke-Item (Split-Path $source -Parent)
+        }
+        else {
+            Write-Host "Cannot open directory of '$source'." -ForegroundColor Red
+        }
+    }
+    else {
+        return $source
+    }
+}
+
+Set-Alias -Name "src" -Value "Get-Source"
+
 # No welcome text please
 Clear-Host
 Write-Host (Get-Location).ToString()
