@@ -234,7 +234,7 @@ Set-Alias -Name "updatepip" -Value "Update-PipVersion"
 
 <# Remove all __pycache__ directories and contents #>
 function Remove-AllPycache {
-    Get-ChildItem -Recurse __pycache__ | Remove-Item -Recurse
+    Get-ChildItem . __pycache__ -Directory -Recurse | Remove-Item -Recurse
 }
 
 Set-Alias -Name "pycache" -Value "Remove-AllPycache"
