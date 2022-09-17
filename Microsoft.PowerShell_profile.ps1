@@ -290,7 +290,7 @@ function Get-Source {
     )
     $source = (Get-Command $Command).Source
     if ($Open) {
-        if (Test-Path $source) {
+        if ($source -and (Test-Path $source)) {
             Invoke-Item (Split-Path $source -Parent)
         }
         else {
