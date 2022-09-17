@@ -282,3 +282,4 @@ Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
 
 # No welcome text please
 Clear-Host
+Write-Host (Get-Location).ToString()
