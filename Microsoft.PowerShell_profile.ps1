@@ -304,6 +304,29 @@ function Get-Source {
 
 Set-Alias -Name "src" -Value "Get-Source"
 
+<# Shortcut for git commit --amend #>
+function Edit-PreviousCommit {
+    # Optional message to pass to -m option
+    # If not included, use --no-edit switch
+    param (
+        [Parameter()]
+        [string] $Message
+    )
+    if ($Message -eq "") {
+        git commit --amend --no-edit
+    }
+    elseif ($Message.Length -le 50) {
+        git commit --amend -m $Message
+    }
+    # Disallow messages longer than 50 characters
+    else {
+        $excess = $Message.Length - 50
+        Write-Host "Your message should be <= 50 characters in length. It is currently $excess characters too long. Aborted." -ForegroundColor Red
+    }
+}
+
+Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
+
 # No welcome text please
 Clear-Host
 Write-Host (Get-Location).ToString()
