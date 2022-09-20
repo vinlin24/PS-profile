@@ -163,7 +163,7 @@ Set-Alias -Name "init" -Value "Start-ProjectDir"
 <# Open one of my repos as a workspace or directory #>
 function Open-CodeWorkspace {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [string] $Name,
         [Parameter()]
         [switch] $New
@@ -173,6 +173,11 @@ function Open-CodeWorkspace {
     $reposDirPath = Join-Path $home "repos"
     $repos = Get-ChildItem $reposDirPath -Directory
     $repoList = ($repos | Where-Object { $_.Name -like "*$Name*" })
+    # If no arg was supplied, let the final else catch it
+    if ($Name -eq "") {
+        $repoList = $null
+        $New = $false
+    }
 
     # If such a repository exists:
     if ($null -ne $repoList) {
