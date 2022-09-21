@@ -170,8 +170,12 @@ function Open-CodeWorkspace {
     )
 
     # Assume the repos folder isn't gonna move lmao
-    $reposDirPath = Join-Path $home "repos"
-    $repos = Get-ChildItem $reposDirPath -Directory
+    $reposDirPath = Join-Path $HOME "repos"
+    $repos = @(Get-ChildItem $reposDirPath -Directory)
+    # Search for folders within these special folders too
+    $repos += @(Get-ChildItem "$reposDirPath\dump" -Directory)
+    $repos += @(Get-ChildItem "$reposDirPath\forks" -Directory)
+
     $repoList = ($repos | Where-Object { $_.Name -like "*$Name*" })
     # If no arg was supplied, let the final else catch it
     if ($Name -eq "") {
@@ -181,7 +185,8 @@ function Open-CodeWorkspace {
 
     # If such a repository exists:
     if ($null -ne $repoList) {
-        $repoPath = Join-Path $reposDirPath $repoList[0].Name
+        # Use the first match result
+        $repoPath = $repoList[0].FullName
         $workspaceFile = Get-ChildItem $repoPath "*.code-workspace"
         # I only save one code-workspace per repo but who knows
         if ($workspaceFile -is [array]) {
@@ -214,9 +219,16 @@ function Open-CodeWorkspace {
     # Otherwise list the names of existing repos:
     else {
         Write-Host "No repository found in $reposDirPath with a name like '$Name'." -ForegroundColor Red
-        $reposNames = ($repos | ForEach-Object { $_.Name }) -join "`n"
-        Write-Host "The full list of repositories at this directory is:" -ForegroundColor Yellow
-        Write-Host $reposNames
+        Write-Host "The full list of directories at this location is:" -ForegroundColor Yellow
+        foreach ($repo in $repos) {
+            Write-Host $repo.Name
+            # List the subdirectories of these special directories
+            if ($repo.Name -eq "forks" -or $repo.Name -eq "dump") {
+                Get-ChildItem $repo.FullName -Directory | ForEach-Object {
+                    Write-Host "  $($_.Name)"
+                }
+            }
+        }
     }
 }
 
