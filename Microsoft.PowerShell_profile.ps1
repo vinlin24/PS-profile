@@ -160,6 +160,31 @@ function Start-ProjectDir {
 
 Set-Alias -Name "init" -Value "Start-ProjectDir"
 
+<# Helper subroutine for Open-CodeWorkspace #>
+function _prompt_dir_choice {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.Object[]] $RepoList
+    )
+    $count = 0
+    $choiceDescs = @(
+        $RepoList | ForEach-Object {
+            "&${count}: $($_.Name)"
+            $count++
+        }
+    )
+    $choices = [System.Management.Automation.Host.ChoiceDescription[]] $choiceDescs
+    # Prompt user input
+    $choice = $Host.UI.PromptForChoice(
+        "'$Name' matched $count directories",
+        "Pick the one you meant to open (or ^C to cancel):",
+        $choices,
+        0
+    )
+    # Resolve choice
+    return $RepoList[$choice].FullName
+}
+
 <# Open one of my repos as a workspace or directory #>
 function Open-CodeWorkspace {
     param (
@@ -176,7 +201,7 @@ function Open-CodeWorkspace {
     $repos += @(Get-ChildItem "$reposDirPath\dump" -Directory)
     $repos += @(Get-ChildItem "$reposDirPath\forks" -Directory)
 
-    $repoList = ($repos | Where-Object { $_.Name -like "*$Name*" })
+    $repoList = @($repos | Where-Object { $_.Name -like "*$Name*" })
     # If no arg was supplied, let the final else catch it
     if ($Name -eq "") {
         $repoList = $null
@@ -184,9 +209,15 @@ function Open-CodeWorkspace {
     }
 
     # If such a repository exists:
-    if ($null -ne $repoList) {
-        # Use the first match result
-        $repoPath = $repoList[0].FullName
+    if ($repoList.Length -gt 0) {
+        # If the name matched multiple results, prompt user to choose
+        if ($repoList.Length -gt 1) {
+            $repoPath = _prompt_dir_choice $repoList
+        }
+        else {
+            $repopath = $repoList[0].FullName
+        }
+
         $workspaceFile = Get-ChildItem $repoPath "*.code-workspace"
         # I only save one code-workspace per repo but who knows
         if ($workspaceFile -is [array]) {
