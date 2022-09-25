@@ -271,6 +271,12 @@ function Open-CodeWorkspace {
 
 Set-Alias -Name "workspace" -Value "Open-CodeWorkspace"
 
+function Open-ReposDirectory {
+    Invoke-Item "$env:USERPROFILE\repos"
+}
+
+Set-Alias -Name "repos" -Value "Open-ReposDirectory"
+
 <# Open this file's containing directory in VS Code #>
 function Open-ThisProfile {
     code (Split-Path $profile -Parent)
