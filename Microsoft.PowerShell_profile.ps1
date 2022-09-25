@@ -82,14 +82,12 @@ function Start-PythonVenv {
     Open-PythonVenv -Path $newVenvPath
 }
 
-Set-Alias -Name "venv" -Value "Start-PythonVenv"
+
 
 <# Get the list of verbs in a separate window #>
 function Get-VerbsGridView {
     Get-Verb | Out-GridView
 }
-
-Set-Alias -Name "verbs" -Value "Get-VerbsGridView"
 
 <# Helper function for Start-ProjectDir #>
 function New-ItemAndMsg {
@@ -157,8 +155,6 @@ function Start-ProjectDir {
 
     Write-Host "Finished creating project directory template." -ForegroundColor Green
 }
-
-Set-Alias -Name "init" -Value "Start-ProjectDir"
 
 <# Helper subroutine for Open-CodeWorkspace #>
 function _prompt_dir_choice {
@@ -269,13 +265,9 @@ function Open-CodeWorkspace {
     }
 }
 
-Set-Alias -Name "workspace" -Value "Open-CodeWorkspace"
-
 function Open-ReposDirectory {
     Invoke-Item "$env:USERPROFILE\repos"
 }
-
-Set-Alias -Name "repos" -Value "Open-ReposDirectory"
 
 <# Open this file's containing directory in VS Code #>
 function Open-ThisProfile {
@@ -283,21 +275,15 @@ function Open-ThisProfile {
     exit
 }
 
-Set-Alias -Name "profile" -Value "Open-ThisProfile"
-
 <# Update pip to latest version #>
 function Update-PipVersion {
     python -m pip install --upgrade pip
 }
 
-Set-Alias -Name "updatepip" -Value "Update-PipVersion"
-
 <# Remove all __pycache__ directories and contents #>
 function Remove-AllPycache {
     Get-ChildItem . __pycache__ -Directory -Recurse | Remove-Item -Recurse
 }
-
-Set-Alias -Name "pycache" -Value "Remove-AllPycache"
 
 <# Reinstall the virtual environment in current directory #>
 function Reset-VirtualEnv {
@@ -338,8 +324,6 @@ function Reset-VirtualEnv {
     }
 }
 
-Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
-
 <# Shortcut for getting source path of an executable #>
 function Get-Source {
     param (
@@ -362,8 +346,6 @@ function Get-Source {
     }
 }
 
-Set-Alias -Name "src" -Value "Get-Source"
-
 <# Shortcut for git commit --amend #>
 function Edit-PreviousCommit {
     # Optional message to pass to -m option
@@ -383,17 +365,6 @@ function Edit-PreviousCommit {
         $excess = $Message.Length - 50
         Write-Host "Your message should be <= 50 characters in length. It is currently $excess characters too long. Aborted." -ForegroundColor Red
     }
-}
-
-Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
-
-<# Alias for using specific Python interpreter instead of Python on PATH #>
-$PYTHON_DIR = "$env:LOCALAPPDATA\Programs\Python"
-# Get the version part of the directory, like "39" for Python 3.9
-$PYTHON_VERS = @(Get-ChildItem $PYTHON_DIR | ForEach-Object { $_.Name -replace "Python", "" })
-# Example: py39 for Python 3.9 interpreter
-foreach ($ver in $PYTHON_VERS) {
-    Set-Alias -Name "py$ver" -Value "$PYTHON_DIR\Python$ver\python.exe"
 }
 
 <# Shortcut for opening Git hook files since they're hidden in VS Code #>
@@ -425,8 +396,29 @@ function Open-GitHook {
     Write-Host "Could not find a hook with a filename name similar to '$Name', aborted." -ForegroundColor Red
 }
 
+<# Set aliases for custom cmdlets #>
+Set-Alias -Name "venv" -Value "Start-PythonVenv"
+Set-Alias -Name "verbs" -Value "Get-VerbsGridView"
+Set-Alias -Name "init" -Value "Start-ProjectDir"
+Set-Alias -Name "workspace" -Value "Open-CodeWorkspace"
+Set-Alias -Name "repos" -Value "Open-ReposDirectory"
+Set-Alias -Name "profile" -Value "Open-ThisProfile"
+Set-Alias -Name "updatepip" -Value "Update-PipVersion"
+Set-Alias -Name "pycache" -Value "Remove-AllPycache"
+Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
+Set-Alias -Name "src" -Value "Get-Source"
+Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
 Set-Alias -Name "hook" -Value "Open-GitHook"
 
-# No welcome text please
+<# Alias for using specific Python interpreter instead of Python on PATH #>
+$PYTHON_DIR = "$env:LOCALAPPDATA\Programs\Python"
+# Get the version part of the directory, like "39" for Python 3.9
+$PYTHON_VERS = @(Get-ChildItem $PYTHON_DIR | ForEach-Object { $_.Name -replace "Python", "" })
+# Example: py39 for Python 3.9 interpreter
+foreach ($ver in $PYTHON_VERS) {
+    Set-Alias -Name "py$ver" -Value "$PYTHON_DIR\Python$ver\python.exe"
+}
+
+<# No welcome text please #>
 Clear-Host
 Write-Host (Get-Location).ToString()
