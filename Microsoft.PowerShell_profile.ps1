@@ -410,15 +410,6 @@ Set-Alias -Name "src" -Value "Get-Source"
 Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
 Set-Alias -Name "hook" -Value "Open-GitHook"
 
-<# Alias for using specific Python interpreter instead of Python on PATH #>
-$PYTHON_DIR = "$env:LOCALAPPDATA\Programs\Python"
-# Get the version part of the directory, like "39" for Python 3.9
-$PYTHON_VERS = @(Get-ChildItem $PYTHON_DIR | ForEach-Object { $_.Name -replace "Python", "" })
-# Example: py39 for Python 3.9 interpreter
-foreach ($ver in $PYTHON_VERS) {
-    Set-Alias -Name "py$ver" -Value "$PYTHON_DIR\Python$ver\python.exe"
-}
-
 <# No welcome text please #>
 Clear-Host
 Write-Host (Get-Location).ToString()
