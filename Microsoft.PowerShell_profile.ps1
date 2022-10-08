@@ -403,7 +403,11 @@ function Connect-SEASnet {
 
 # Start command line Emacs
 function Start-Emacs {
-    & "C:\Program Files\Emacs\emacs-28.2\bin\emacs.exe" -nw
+    param (
+        [Parameter()]
+        [string[]] $EmacsArgs
+    )
+    & "C:\Program Files\Emacs\emacs-28.2\bin\emacs.exe" -nw $EmacsArgs
 }
 
 <# Set aliases for custom cmdlets #>
