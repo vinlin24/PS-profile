@@ -396,6 +396,16 @@ function Open-GitHook {
     Write-Host "Could not find a hook with a filename name similar to '$Name', aborted." -ForegroundColor Red
 }
 
+# Shortcut for logging into engineering server
+function Connect-SEASnet {
+    ssh "classvin@lnxsrv15.seas.ucla.edu"
+}
+
+# Start command line Emacs
+function Start-Emacs {
+    & "C:\Program Files\Emacs\emacs-28.2\bin" -nw
+}
+
 <# Set aliases for custom cmdlets #>
 Set-Alias -Name "venv" -Value "Start-PythonVenv"
 Set-Alias -Name "verbs" -Value "Get-VerbsGridView"
@@ -409,6 +419,8 @@ Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
 Set-Alias -Name "src" -Value "Get-Source"
 Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
 Set-Alias -Name "hook" -Value "Open-GitHook"
+Set-Alias -Name "seas" -Value "Connect-SEASnet"
+Set-Alias -Name "emacs" -Value "Start-Emacs"
 
 <# No welcome text please #>
 Clear-Host
