@@ -410,6 +410,15 @@ function Start-Emacs {
     & "C:\Program Files\Emacs\emacs-28.2\bin\emacs.exe" -nw $EmacsArgs
 }
 
+# Open with Sublime Text 3
+function Start-SublimeText {
+    param (
+        [Parameter()]
+        [string[]] $SublimeArgs
+    )
+    & "C:\Program Files\Sublime Text 3\sublime_text.exe" $SublimeArgs
+}
+
 <# Set aliases for custom cmdlets #>
 Set-Alias -Name "venv" -Value "Start-PythonVenv"
 Set-Alias -Name "verbs" -Value "Get-VerbsGridView"
@@ -425,6 +434,7 @@ Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
 Set-Alias -Name "hook" -Value "Open-GitHook"
 Set-Alias -Name "seas" -Value "Connect-SEASnet"
 Set-Alias -Name "emacs" -Value "Start-Emacs"
+Set-Alias -Name "text" -Value "Start-SublimeText"
 
 <# No welcome text please #>
 Clear-Host
