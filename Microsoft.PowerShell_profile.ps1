@@ -1,5 +1,17 @@
+<# ANSI Escape Sequences #>
+$ESC = [char]27
+$RESET = "$ESC[0m"
+# All of these are bolded too
+$GREEN = "$ESC[1;32m"
+$BLUE = "$ESC[1;34m"
+$CYAN = "$ESC[1;36m"
+
 <# Override default shell prompt #>
-function prompt { "PS> " }
+function prompt {
+    $logonName = "${GREEN}${env:USERNAME}@${env:USERDOMAIN}${RESET}"
+    $cwdLeaf = "${BLUE}$(Split-Path (Get-Location) -Leaf)${RESET}"
+    "${logonName}:(${cwdLeaf})${CYAN} PS>${RESET} "
+}
 
 <# Helper function for writing status based on last exit code #>
 function Write-CompletionStatus {
@@ -438,4 +450,4 @@ Set-Alias -Name "text" -Value "Start-SublimeText"
 
 <# No welcome text please #>
 Clear-Host
-Write-Host (Get-Location).ToString()
+Write-Host "$(Get-Location)" -ForegroundColor Yellow
