@@ -8,9 +8,47 @@ $CYAN = "$ESC[1;36m"
 
 <# Override default shell prompt #>
 function prompt {
-    $logonName = "${GREEN}${env:USERNAME}@${env:USERDOMAIN}${RESET}"
-    $cwdLeaf = "${BLUE}$(Split-Path (Get-Location) -Leaf)${RESET}"
-    "${logonName}:(${cwdLeaf})${CYAN} PS>${RESET} "
+    # Abbreviate the path part to use ~ for home and show at most two
+    # layers deep from cwd, while still including ~ or the drive root.
+    # For example:
+    # ~\...\classes\Fall 22 PS>
+
+    $cwd = "$(Get-Location)"
+    $root = "$(Get-Item \)"
+    if ($cwd -like "${HOME}*") {
+        $root = $HOME
+    }
+
+    # Case 1: at the root
+    if ($cwd -eq $root) {
+        $cwdAbbrev = $root
+    }
+
+    # Case 2: parent is the root
+    elseif ((Split-Path $cwd -Parent) -eq $root) {
+        $cwdAbbrev = $cwd
+    }
+
+    # Case 3: grandparent is the root
+    elseif ((Split-Path (Split-Path $cwd -Parent) -Parent) -eq $root) {
+        $cwdAbbrev = $cwd
+    }
+
+    # Case 4: there are arbitrary layers between grandparent and root
+    else {
+        $leaf = Split-Path $cwd -Leaf
+        $parent = Split-Path (Split-Path $cwd -Parent) -Leaf
+        $parts = @("...", $parent, $leaf)
+        $cwdAbbrev = $root
+        foreach ($part in $parts) {
+            $cwdAbbrev = Join-Path $cwdAbbrev $part
+        }
+    }
+
+    # Finally replace home part of path with ~
+    $cwdAbbrev = $cwdAbbrev -ireplace [regex]::Escape($HOME), "~"
+    # Final prompt
+    "${BLUE}${cwdAbbrev}${RESET} ${CYAN}PS>${RESET} "
 }
 
 <# Helper function for writing status based on last exit code #>
@@ -88,7 +126,7 @@ function Start-PythonVenv {
     Write-Host "Creating Python virtual environment $Name in current directory..." -NoNewline -ForegroundColor Yellow
     try { python -m venv $Name }
     finally { Write-CompletionStatus }
-    
+
     # Activate the new virtual environment
     $newVenvPath = Join-Path -Path (Get-Location) -ChildPath $Name
     Open-PythonVenv -Path $newVenvPath
