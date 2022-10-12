@@ -490,6 +490,7 @@ Set-Alias -Name "text" -Value "Start-SublimeText"
 Remove-Item alias:pwd -Force
 function pwd { "$(Get-Location)" }
 function ld { Get-ChildItem -Directory }
+function lf { Get-ChildItem -File }
 Set-Alias -Name "grep" -Value "Select-String"
 Set-Alias -Name "touch" -Value "New-Item"
 function head {
@@ -515,7 +516,7 @@ function tail {
 }
 
 <# Current convenience cd shortcut #>
-function ucla { Set-Location "${HOME}\Documents\ucla\classes\Fall 22" }
+function ucla { Set-Location "${HOME}\Documents\ucla\classes\Fall 22\CS 35L" }
 
 <# No welcome text please #>
 Clear-Host
