@@ -547,7 +547,7 @@ function export {
     $value = $pair[1]
     # Strip quotes off value
     $value = $value.Trim("`"", "'")
-    # [System.Environment]::SetEnvironmentVariable($key, $value, "User")
+    [System.Environment]::SetEnvironmentVariable($key, $value, "User")
     Write-Host "Set ${GREEN}${key}${RESET}=${CYAN}${value}${RESET}"
 }
 
