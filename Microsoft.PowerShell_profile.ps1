@@ -2,9 +2,15 @@
 $ESC = [char]27
 $RESET = "$ESC[0m"
 # All of these are bolded too
+$BLACK = "$ESC[1;30m"
+$RED = "$ESC[1;31m"
 $GREEN = "$ESC[1;32m"
+$YELLOW = "$ESC[1;33m"
 $BLUE = "$ESC[1;34m"
+$MAGENTA = "$ESC[1;35m"
 $CYAN = "$ESC[1;36m"
+$WHITE = "$ESC[1;37m"
+$DEFAULT = "$ESC[1;39m"
 
 <# Override default shell prompt #>
 function prompt {
@@ -513,6 +519,36 @@ function tail {
     )
     if ($n -lt 0) { $n = 0 }
     Get-Content -Path $FilePath | Select-Object -Last $n
+}
+
+<# Set permanent user environment variables (requires shell restart) #>
+function export {
+    param (
+        [Parameter()]
+        [string] $Expression
+    )
+
+    # 'export' alone should list all the environment variables
+    if ($Expression -eq "") {
+        foreach ($entry in (Get-ChildItem "env:")) {
+            Write-Host "$($entry.Name)=`"$($entry.Value)`""
+        }
+        return
+    }
+
+    # Parse 'key=value' pair
+    $pair = $Expression -split "=", 2, "SimpleMatch"
+    # Ignore, don't give error
+    if ($pair.Length -lt 2) {
+        Write-Host "Exported nothing. Use key=value syntax." -ForegroundColor Red
+        return
+    }
+    $key = $pair[0]
+    $value = $pair[1]
+    # Strip quotes off value
+    $value = $value.Trim("`"", "'")
+    # [System.Environment]::SetEnvironmentVariable($key, $value, "User")
+    Write-Host "Set ${GREEN}${key}${RESET}=${CYAN}${value}${RESET}"
 }
 
 <# Current convenience cd shortcut #>
