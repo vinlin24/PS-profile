@@ -408,12 +408,12 @@ function Open-GitHook {
     Write-Host "Could not find a hook with a filename name similar to '$Name', aborted." -ForegroundColor Red
 }
 
-# Shortcut for logging into engineering server
+<# Shortcut for logging into engineering server #>
 function Connect-SEASnet {
     ssh "classvin@lnxsrv15.seas.ucla.edu"
 }
 
-# Start command line Emacs
+<# Start command line Emacs #>
 function Start-Emacs {
     param (
         [Parameter()]
@@ -422,7 +422,7 @@ function Start-Emacs {
     & "C:\Program Files\Emacs\emacs-28.2\bin\emacs.exe" -nw $EmacsArgs
 }
 
-# Open with Sublime Text 3
+<# Open with Sublime Text 3 #>
 function Start-SublimeText {
     param (
         [Parameter()]
@@ -447,6 +447,37 @@ Set-Alias -Name "hook" -Value "Open-GitHook"
 Set-Alias -Name "seas" -Value "Connect-SEASnet"
 Set-Alias -Name "emacs" -Value "Start-Emacs"
 Set-Alias -Name "text" -Value "Start-SublimeText"
+
+<# Define some common commands/aliases reminiscent of bash #>
+Remove-Item alias:pwd -Force
+function pwd { "$(Get-Location)" }
+function ld { Get-ChildItem -Directory }
+Set-Alias -Name "grep" -Value "Select-String"
+Set-Alias -Name "touch" -Value "New-Item"
+function head {
+    param (
+        [Parameter()]
+        [string] $FilePath,
+        [Parameter()]
+        [int] $n
+    )
+    if ($n -lt 0) { $n = 0 }
+    Get-Content -Path $FilePath | Select-Object -First $n
+}
+
+function tail {
+    param (
+        [Parameter()]
+        [string] $FilePath,
+        [Parameter()]
+        [int] $n
+    )
+    if ($n -lt 0) { $n = 0 }
+    Get-Content -Path $FilePath | Select-Object -Last $n
+}
+
+<# Current convenience cd shortcut #>
+function ucla { Set-Location "${HOME}\Documents\ucla\classes\Fall 22" }
 
 <# No welcome text please #>
 Clear-Host
