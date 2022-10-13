@@ -1,6 +1,7 @@
 <# ANSI Escape Sequences #>
 $ESC = [char]27
 $RESET = "$ESC[0m"
+$DEFAULT = "$ESC[39m"
 # All of these are bolded too
 $BLACK = "$ESC[1;30m"
 $RED = "$ESC[1;31m"
@@ -10,7 +11,6 @@ $BLUE = "$ESC[1;34m"
 $MAGENTA = "$ESC[1;35m"
 $CYAN = "$ESC[1;36m"
 $WHITE = "$ESC[1;37m"
-$DEFAULT = "$ESC[1;39m"
 
 <# Override default shell prompt #>
 function prompt {
@@ -55,6 +55,20 @@ function prompt {
     $cwdAbbrev = $cwdAbbrev -ireplace [regex]::Escape($HOME), "~"
     # Final prompt
     "${BLUE}${cwdAbbrev}${RESET} ${CYAN}PS>${RESET} "
+}
+
+<# Colorized ls from https://github.com/joonro/Get-ChildItemColor #>
+# Only run this in the console and not in the ISE
+if (-Not (Test-Path Variable:PSise)) {
+    try {
+        Import-Module Get-ChildItemColor
+    }
+    catch {
+        Write-Host "Module Get-ChildItemColor could not be loaded." -ForegroundColor Red
+    }
+    Remove-Item alias:ls -Force
+    Set-Alias ls Get-ChildItemColor -option AllScope
+    Set-Alias l Get-ChildItemColorFormatWide -option AllScope
 }
 
 <# Helper function for writing status based on last exit code #>
@@ -495,8 +509,8 @@ Set-Alias -Name "text" -Value "Start-SublimeText"
 <# Define some common commands/aliases reminiscent of bash #>
 Remove-Item alias:pwd -Force
 function pwd { "$(Get-Location)" }
-function ld { Get-ChildItem -Directory }
-function lf { Get-ChildItem -File }
+function ld { Get-ChildItemColor -Directory }
+function lf { Get-ChildItemColor -File }
 Set-Alias -Name "grep" -Value "Select-String"
 Set-Alias -Name "touch" -Value "New-Item"
 function head {
