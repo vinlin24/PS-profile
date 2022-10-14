@@ -12,6 +12,34 @@ $MAGENTA = "$ESC[1;35m"
 $CYAN = "$ESC[1;36m"
 $WHITE = "$ESC[1;37m"
 
+
+<# Helper function for prompt #>
+function Get-BranchName () {
+    $branch = git rev-parse --abbrev-ref HEAD
+
+    # Non-existent repo
+    if (!$?) { return "" }
+
+    # Determine the color from the status
+    $status = git status -s
+    if ($status.Length -gt 0) {
+        $branchColor = $YELLOW
+    }
+    else {
+        $branchColor = $GREEN
+    }
+
+    # We're probably in detached HEAD state, so return the SHA
+    if ($branch -eq "HEAD") {
+        $branch = git rev-parse --short HEAD
+        return " ${RED}(${branch})${RESET}"
+    }
+    # We're on an actual branch, so return it
+    else {
+        return " ${branchColor}(${branch})${RESET}"
+    }
+}
+
 <# Override default shell prompt #>
 function prompt {
     # Abbreviate the path part to use ~ for home and show at most two
@@ -54,7 +82,7 @@ function prompt {
     # Finally replace home part of path with ~
     $cwdAbbrev = $cwdAbbrev -ireplace [regex]::Escape($HOME), "~"
     # Final prompt
-    "${BLUE}${cwdAbbrev}${RESET} ${CYAN}PS>${RESET} "
+    "${BLUE}${cwdAbbrev}${RESET}$(Get-BranchName) ${CYAN}PS>${RESET} "
 }
 
 <# Colorized ls from https://github.com/joonro/Get-ChildItemColor #>
@@ -570,4 +598,3 @@ function ucla { Set-Location "${HOME}\Documents\ucla\classes\Fall 22\CS 35L" }
 
 <# No welcome text please #>
 Clear-Host
-Write-Host "$(Get-Location)" -ForegroundColor Yellow
