@@ -95,8 +95,8 @@ if (-Not (Test-Path Variable:PSise)) {
         Write-Host "Module Get-ChildItemColor could not be loaded." -ForegroundColor Red
     }
     Remove-Item alias:ls -Force
-    Set-Alias ls Get-ChildItemColor -option AllScope
-    Set-Alias l Get-ChildItemColorFormatWide -option AllScope
+    Set-Alias ll Get-ChildItemColor -option AllScope
+    Set-Alias ls Get-ChildItemColorFormatWide -option AllScope
 }
 
 <# Helper function for writing status based on last exit code #>
