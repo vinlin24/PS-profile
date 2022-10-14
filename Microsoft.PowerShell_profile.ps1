@@ -422,28 +422,6 @@ function Reset-VirtualEnv {
     }
 }
 
-<# Shortcut for getting source path of an executable #>
-function Get-Source {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string] $Command,
-        [Parameter()]
-        [switch] $Open
-    )
-    $source = (Get-Command $Command).Source
-    if ($Open) {
-        if ($source -and (Test-Path $source)) {
-            Invoke-Item (Split-Path $source -Parent)
-        }
-        else {
-            Write-Host "Cannot open directory of '$source'." -ForegroundColor Red
-        }
-    }
-    else {
-        return $source
-    }
-}
-
 <# Shortcut for git commit --amend #>
 function Edit-PreviousCommit {
     # Optional message to pass to -m option
@@ -507,7 +485,7 @@ function Start-Emacs {
     )
     & "C:\Program Files\Emacs\emacs-28.2\bin\emacs.exe" -nw $EmacsArgs
 }
-
+    
 <# Open with Sublime Text 3 #>
 function Start-SublimeText {
     param (
@@ -516,7 +494,7 @@ function Start-SublimeText {
     )
     & "C:\Program Files\Sublime Text 3\sublime_text.exe" $SublimeArgs
 }
-
+        
 <# Set aliases for custom cmdlets #>
 Set-Alias -Name "venv" -Value "Start-PythonVenv"
 Set-Alias -Name "verbs" -Value "Get-VerbsGridView"
@@ -527,13 +505,12 @@ Set-Alias -Name "profile" -Value "Open-ThisProfile"
 Set-Alias -Name "updatepip" -Value "Update-PipVersion"
 Set-Alias -Name "pycache" -Value "Remove-AllPycache"
 Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
-Set-Alias -Name "src" -Value "Get-Source"
 Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
 Set-Alias -Name "hook" -Value "Open-GitHook"
 Set-Alias -Name "seas" -Value "Connect-SEASnet"
 Set-Alias -Name "emacs" -Value "Start-Emacs"
 Set-Alias -Name "text" -Value "Start-SublimeText"
-
+        
 <# Define some common commands/aliases reminiscent of bash #>
 Remove-Item alias:pwd -Force
 function pwd { "$(Get-Location)" }
@@ -562,14 +539,14 @@ function tail {
     if ($n -lt 0) { $n = 0 }
     Get-Content -Path $FilePath | Select-Object -Last $n
 }
-
+    
 <# Set permanent user environment variables (requires shell restart) #>
 function export {
     param (
         [Parameter()]
         [string] $Expression
     )
-
+            
     # 'export' alone should list all the environment variables
     if ($Expression -eq "") {
         foreach ($entry in (Get-ChildItem "env:")) {
@@ -577,7 +554,7 @@ function export {
         }
         return
     }
-
+            
     # Parse 'key=value' pair
     $pair = $Expression -split "=", 2, "SimpleMatch"
     # Ignore, don't give error
@@ -591,6 +568,28 @@ function export {
     $value = $value.Trim("`"", "'")
     [System.Environment]::SetEnvironmentVariable($key, $value, "User")
     Write-Host "Set ${GREEN}${key}${RESET}=${CYAN}${value}${RESET}"
+}
+
+<# Shortcut for getting source path of an executable #>
+function which {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $Command,
+        [Parameter()]
+        [switch] $Open
+    )
+    $source = (Get-Command $Command).Source
+    if ($Open) {
+        if ($source -and (Test-Path $source)) {
+            Invoke-Item (Split-Path $source -Parent)
+        }
+        else {
+            Write-Host "Cannot open directory of '$source'." -ForegroundColor Red
+        }
+    }
+    else {
+        return $source
+    }
 }
 
 <# Current convenience cd shortcut #>
