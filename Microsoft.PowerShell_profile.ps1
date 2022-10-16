@@ -30,18 +30,24 @@ function Get-BranchState () {
     # Use the same notation as VS Code in the bottom left corner:
     # '*' for modified, '+' for staged, and '*+' for both
     $status = git status  # For some reason this can be an array
+
+    $ANY = "[\s\S]*"
+
     switch -Regex ($status -join "") {
-        "[\s\S]*nothing to commit, working tree clean" {
+        "${ANY}nothing to commit, working tree clean" {
             return " ${GREEN}(${branch})${RESET}"
         }
-        "[\s\S]*Changes to be committed:[\s\S]*Changes not staged for commit:[\s\S]*" {
+        "${ANY}Changes to be committed:${ANY}Changes not staged for commit:${ANY}" {
             return " ${MAGENTA}(${branch}*+)${RESET}"
         }
-        "[\s\S]*Changes to be committed:[\s\S]*" { 
+        "${ANY}Changes to be committed:${ANY}" { 
             return " ${MAGENTA}(${branch}+)${RESET}"
         }
-        "[\s\S]*Changes not staged for commit:[\s\S]*" {
+        "${ANY}Changes not staged for commit:${ANY}" {
             return " ${YELLOW}(${branch}*)${RESET}"
+        }
+        "${ANY}fix conflicts${ANY}" {
+            return " ${RED}(${branch}!)${RESET}"
         }
     }
         
