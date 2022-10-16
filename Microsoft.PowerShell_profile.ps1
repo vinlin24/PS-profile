@@ -37,13 +37,13 @@ function Get-BranchState () {
         "${ANY}nothing to commit, working tree clean" {
             return " ${GREEN}(${branch})${RESET}"
         }
-        "${ANY}Changes to be committed:${ANY}Changes not staged for commit:${ANY}" {
+        "${ANY}Changes to be committed:${ANY}(Changes not staged for commit|Untracked files):${ANY}" {
             return " ${MAGENTA}(${branch}*+)${RESET}"
         }
         "${ANY}Changes to be committed:${ANY}" { 
             return " ${MAGENTA}(${branch}+)${RESET}"
         }
-        "${ANY}Changes not staged for commit:${ANY}" {
+        "${ANY}(Changes not staged for commit|Untracked files):${ANY}" {
             return " ${YELLOW}(${branch}*)${RESET}"
         }
         "${ANY}fix conflicts${ANY}" {
