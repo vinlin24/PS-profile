@@ -34,7 +34,7 @@ function Get-BranchState () {
         "[\s\S]*nothing to commit, working tree clean" {
             return " ${GREEN}(${branch})${RESET}"
         }
-        "[\s\S]*Changes to be committed:[\s\S]*Changes not staged for commit:[\s\S]*" {
+        "[\s\S]no b" {
             return " ${MAGENTA}(${branch}*+)${RESET}"
         }
         "[\s\S]*Changes to be committed:[\s\S]*" { 
