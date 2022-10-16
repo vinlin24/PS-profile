@@ -612,3 +612,5 @@ function ucla { Set-Location "${HOME}\Documents\ucla\classes\Fall 22\CS 35L" }
 
 <# No welcome text please #>
 Clear-Host
+
+# lmao I gotta make a merge conflict
