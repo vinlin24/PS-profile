@@ -96,8 +96,21 @@ function prompt {
 
     # Finally replace home part of path with ~
     $cwdAbbrev = $cwdAbbrev -ireplace [regex]::Escape($HOME), "~"
-    # Final prompt
-    "${BLUE}${cwdAbbrev}${RESET}$(Get-BranchState) ${CYAN}PS>${RESET} "
+
+    # Part on the second line
+    $prompt = "PS> "
+    $venv = $env:VIRTUAL_ENV
+    # If a venv is activated, prefix prompt with name of origin directory
+    if ($venv) {
+        $venvDir = Split-Path (Split-Path $venv -Parent) -Leaf
+        $prompt = "${GREEN}$([char]9492)$([char]9472)(${venvDir})${RESET} ${CYAN}${prompt}${RESET}"
+    }
+    else {
+        $prompt = "${CYAN}${prompt}${RESET}"
+    }
+
+    # Final combined prompt
+    "${BLUE}${cwdAbbrev}${RESET}$(Get-BranchState)`n${prompt}"
 }
 
 <# Colorized ls from https://github.com/joonro/Get-ChildItemColor #>
@@ -116,6 +129,9 @@ if (-Not (Test-Path Variable:PSise)) {
 
 function ld { Get-ChildItemColor -Directory }
 function lf { Get-ChildItemColor -File }
+
+function pwd { "$(Get-Location)" }
+Remove-Item alias:pwd -Force
 
 <# No welcome text please #>
 Clear-Host
