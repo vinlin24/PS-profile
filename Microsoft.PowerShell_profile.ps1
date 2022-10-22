@@ -40,7 +40,7 @@ function Get-BranchState () {
         "${ANY}Changes to be committed:${ANY}(Changes not staged for commit|Untracked files):${ANY}" {
             return " ${MAGENTA}(${branch}*+)${RESET}"
         }
-        "${ANY}Changes to be committed:${ANY}" { 
+        "${ANY}Changes to be committed:${ANY}" {
             return " ${MAGENTA}(${branch}+)${RESET}"
         }
         "${ANY}(Changes not staged for commit|Untracked files):${ANY}" {
@@ -50,7 +50,7 @@ function Get-BranchState () {
             return " ${RED}(${branch}!)${RESET}"
         }
     }
-        
+
     # Shouldn't happen but who knows, at least I'll get a color
     return " ${CYAN}(${branch}?)${RESET}"
 }
@@ -96,8 +96,21 @@ function prompt {
 
     # Finally replace home part of path with ~
     $cwdAbbrev = $cwdAbbrev -ireplace [regex]::Escape($HOME), "~"
-    # Final prompt
-    "${BLUE}${cwdAbbrev}${RESET}$(Get-BranchState) ${CYAN}PS>${RESET} "
+
+    # Part on the second line
+    $prompt = "PS> "
+    $venv = $env:VIRTUAL_ENV
+    # If a venv is activated, prefix prompt with name of origin directory
+    if ($venv) {
+        $venvDir = Split-Path (Split-Path $venv -Parent) -Leaf
+        $prompt = "${GREEN}$([char]9492)$([char]9472)(${venvDir})${RESET} ${CYAN}${prompt}${RESET}"
+    }
+    else {
+        $prompt = "${CYAN}${prompt}${RESET}"
+    }
+
+    # Final combined prompt
+    "${BLUE}${cwdAbbrev}${RESET}$(Get-BranchState)`n${prompt}"
 }
 
 <# Colorized ls from https://github.com/joonro/Get-ChildItemColor #>
@@ -487,48 +500,6 @@ function Open-GitHook {
     Write-Host "Could not find a hook with a filename name similar to '$Name', aborted." -ForegroundColor Red
 }
 
-<# Shortcut for logging into engineering server #>
-function Connect-SEASnet {
-    ssh "classvin@lnxsrv15.seas.ucla.edu"
-}
-
-<# Start command line Emacs #>
-function Start-Emacs {
-    param (
-        [Parameter()]
-        [string[]] $EmacsArgs
-    )
-    & "C:\Program Files\Emacs\emacs-28.2\bin\emacs.exe" -nw $EmacsArgs
-}
-    
-<# Open with Sublime Text 3 #>
-function Start-SublimeText {
-    param (
-        [Parameter()]
-        [string[]] $SublimeArgs
-    )
-    & "C:\Program Files\Sublime Text 3\sublime_text.exe" $SublimeArgs
-}
-        
-<# Set aliases for custom cmdlets #>
-Set-Alias -Name "venv" -Value "Start-PythonVenv"
-Set-Alias -Name "verbs" -Value "Get-VerbsGridView"
-Set-Alias -Name "init" -Value "Start-ProjectDir"
-Set-Alias -Name "workspace" -Value "Open-CodeWorkspace"
-Set-Alias -Name "repos" -Value "Open-ReposDirectory"
-Set-Alias -Name "profile" -Value "Open-ThisProfile"
-Set-Alias -Name "updatepip" -Value "Update-PipVersion"
-Set-Alias -Name "pycache" -Value "Remove-AllPycache"
-Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
-Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
-Set-Alias -Name "hook" -Value "Open-GitHook"
-Set-Alias -Name "seas" -Value "Connect-SEASnet"
-Set-Alias -Name "emacs" -Value "Start-Emacs"
-Set-Alias -Name "text" -Value "Start-SublimeText"
-        
-<# Define some common commands/aliases reminiscent of bash #>
-Remove-Item alias:pwd -Force
-function pwd { "$(Get-Location)" }
 function ld { Get-ChildItemColor -Directory }
 function lf { Get-ChildItemColor -File }
 Set-Alias -Name "grep" -Value "Select-String"
@@ -554,14 +525,14 @@ function tail {
     if ($n -lt 0) { $n = 0 }
     Get-Content -Path $FilePath | Select-Object -Last $n
 }
-    
+
 <# Set permanent user environment variables (requires shell restart) #>
 function export {
     param (
         [Parameter()]
         [string] $Expression
     )
-            
+
     # 'export' alone should list all the environment variables
     if ($Expression -eq "") {
         foreach ($entry in (Get-ChildItem "env:")) {
@@ -569,7 +540,7 @@ function export {
         }
         return
     }
-            
+
     # Parse 'key=value' pair
     $pair = $Expression -split "=", 2, "SimpleMatch"
     # Ignore, don't give error
@@ -612,5 +583,3 @@ function ucla { Set-Location "${HOME}\Documents\ucla\classes\Fall 22\CS 35L" }
 
 <# No welcome text please #>
 Clear-Host
-
-# lmao I gotta make a merge conflict
