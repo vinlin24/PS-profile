@@ -500,6 +500,48 @@ function Open-GitHook {
     Write-Host "Could not find a hook with a filename name similar to '$Name', aborted." -ForegroundColor Red
 }
 
+<# Shortcut for logging into engineering server #>
+function Connect-SEASnet {
+    ssh "classvin@lnxsrv15.seas.ucla.edu"
+}
+
+<# Start command line Emacs #>
+function Start-Emacs {
+    param (
+        [Parameter()]
+        [string[]] $EmacsArgs
+    )
+    & "C:\Program Files\Emacs\emacs-28.2\bin\emacs.exe" -nw $EmacsArgs
+}
+
+<# Open with Sublime Text 3 #>
+function Start-SublimeText {
+    param (
+        [Parameter()]
+        [string[]] $SublimeArgs
+    )
+    & "C:\Program Files\Sublime Text 3\sublime_text.exe" $SublimeArgs
+}
+
+<# Set aliases for custom cmdlets #>
+Set-Alias -Name "venv" -Value "Start-PythonVenv"
+Set-Alias -Name "verbs" -Value "Get-VerbsGridView"
+Set-Alias -Name "init" -Value "Start-ProjectDir"
+Set-Alias -Name "workspace" -Value "Open-CodeWorkspace"
+Set-Alias -Name "repos" -Value "Open-ReposDirectory"
+Set-Alias -Name "profile" -Value "Open-ThisProfile"
+Set-Alias -Name "updatepip" -Value "Update-PipVersion"
+Set-Alias -Name "pycache" -Value "Remove-AllPycache"
+Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
+Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
+Set-Alias -Name "hook" -Value "Open-GitHook"
+Set-Alias -Name "seas" -Value "Connect-SEASnet"
+Set-Alias -Name "emacs" -Value "Start-Emacs"
+Set-Alias -Name "text" -Value "Start-SublimeText"
+
+<# Define some common commands/aliases reminiscent of bash #>
+Remove-Item alias:pwd -Force
+function pwd { "$(Get-Location)" }
 function ld { Get-ChildItemColor -Directory }
 function lf { Get-ChildItemColor -File }
 Set-Alias -Name "grep" -Value "Select-String"
