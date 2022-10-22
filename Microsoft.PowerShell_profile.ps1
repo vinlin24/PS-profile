@@ -14,30 +14,45 @@ $WHITE = "$ESC[1;37m"
 
 
 <# Helper function for prompt #>
-function Get-BranchName () {
+function Get-BranchState () {
     $branch = git rev-parse --abbrev-ref HEAD
 
     # Non-existent repo
     if (!$?) { return "" }
-
-    # Determine the color from the status
-    $status = git status -s
-    if ($status.Length -gt 0) {
-        $branchColor = $YELLOW
-    }
-    else {
-        $branchColor = $GREEN
-    }
 
     # We're probably in detached HEAD state, so return the SHA
     if ($branch -eq "HEAD") {
         $branch = git rev-parse --short HEAD
         return " ${RED}(${branch})${RESET}"
     }
-    # We're on an actual branch, so return it
-    else {
-        return " ${branchColor}(${branch})${RESET}"
+
+    # Otherwise determine the color and symbols from the status
+    # Use the same notation as VS Code in the bottom left corner:
+    # '*' for modified, '+' for staged, and '*+' for both
+    $status = git status  # For some reason this can be an array
+
+    $ANY = "[\s\S]*"
+
+    switch -Regex ($status -join "") {
+        "${ANY}nothing to commit, working tree clean" {
+            return " ${GREEN}(${branch})${RESET}"
+        }
+        "${ANY}Changes to be committed:${ANY}(Changes not staged for commit|Untracked files):${ANY}" {
+            return " ${MAGENTA}(${branch}*+)${RESET}"
+        }
+        "${ANY}Changes to be committed:${ANY}" {
+            return " ${MAGENTA}(${branch}+)${RESET}"
+        }
+        "${ANY}(Changes not staged for commit|Untracked files):${ANY}" {
+            return " ${YELLOW}(${branch}*)${RESET}"
+        }
+        "${ANY}fix conflicts${ANY}" {
+            return " ${RED}(${branch}!)${RESET}"
+        }
     }
+
+    # Shouldn't happen but who knows, at least I'll get a color
+    return " ${CYAN}(${branch}?)${RESET}"
 }
 
 <# Override default shell prompt #>
@@ -82,7 +97,7 @@ function prompt {
     # Finally replace home part of path with ~
     $cwdAbbrev = $cwdAbbrev -ireplace [regex]::Escape($HOME), "~"
     # Final prompt
-    "${BLUE}${cwdAbbrev}${RESET}$(Get-BranchName) ${CYAN}PS>${RESET} "
+    "${BLUE}${cwdAbbrev}${RESET}$(Get-BranchState) ${CYAN}PS>${RESET} "
 }
 
 <# Colorized ls from https://github.com/joonro/Get-ChildItemColor #>
