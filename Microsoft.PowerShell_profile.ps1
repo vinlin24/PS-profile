@@ -46,24 +46,18 @@ function Get-BranchState () {
         $marks += "!"
     }
 
-    # Get the HEAD SHA
-    $SHA = (git rev-parse --short HEAD)
-
     # Get the branch name if possible
     $match = $status | Select-String "On branch (.+)"
-    # Probably in detached HEAD mode, use the tag if applicable
+    # Probably in detached HEAD mode, use the tag if applicable, else SHA
     if ($null -eq $match) {
         $match = $status | Select-String "HEAD detached at (.+)"
         # Some other problem, I have no idea
         if ($null -eq $match) { return "" }
-        $detachedState = "${RED}DETACHED${RESET} "
+        $detachedText = "${ESC}[5mDETACHED${ESC}[25m "
     }
-    # If matched first time, uses the branch name
-    # Otherwise, uses the tag name if available, else the SHA
     $branchName = $match.Matches.Groups[1].Value
 
-    $branch = "${color}(${branchName}${marks})${RESET}"
-    return " ${detachedState}${CYAN}${SHA}${RESET} ${branch}"
+    return " => ${color}${detachedText}${branchName}${marks}${RESET}"
 }
 
 <# Override default shell prompt #>
@@ -76,7 +70,7 @@ function prompt {
     # PS>
     #
     # With a venv active and git repository detected:
-    # (.venv) ~\repos\counters c700bb7 (main)
+    # (.venv) ~\repos\counters => main
     # └─(counters) PS>
 
     $cwd = "$(Get-Location)"
