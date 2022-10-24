@@ -550,6 +550,9 @@ Set-Alias -Name "seas" -Value "Connect-SEASnet"
 Set-Alias -Name "emacs" -Value "Start-Emacs"
 Set-Alias -Name "text" -Value "Start-SublimeText"
 
+<# Shortcut for reloading this script in current shell #>
+function refresh { . $profile }
+
 <# Define some common commands/aliases reminiscent of bash #>
 Remove-Item alias:pwd -Force
 function pwd { "$(Get-Location)" }
