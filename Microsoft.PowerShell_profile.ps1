@@ -15,52 +15,69 @@ $WHITE = "$ESC[1;37m"
 
 <# Helper function for prompt #>
 function Get-BranchState () {
-    $branch = git rev-parse --abbrev-ref HEAD
-
-    # Non-existent repo
-    if (!$?) { return "" }
-
-    # We're probably in detached HEAD state, so return the SHA
-    if ($branch -eq "HEAD") {
-        $branch = git rev-parse --short HEAD
-        return " ${RED}(${branch})${RESET}"
-    }
-
     # Otherwise determine the color and symbols from the status
     # Use the same notation as VS Code in the bottom left corner:
-    # '*' for modified, '+' for staged, and '*+' for both
-    $status = git status  # For some reason this can be an array
+    # '*' for modified, '+' for staged, '*+' for both, '!' for conflict
+    $status = (git status) -join "`n" 2> $null
 
-    $ANY = "[\s\S]*"
+    # git error, probably not a repository
+    if ($status -eq "") { return "" }
 
-    switch -Regex ($status -join "") {
-        "${ANY}nothing to commit, working tree clean" {
-            return " ${GREEN}(${branch})${RESET}"
-        }
-        "${ANY}Changes to be committed:${ANY}(Changes not staged for commit|Untracked files):${ANY}" {
-            return " ${MAGENTA}(${branch}*+)${RESET}"
-        }
-        "${ANY}Changes to be committed:${ANY}" {
-            return " ${MAGENTA}(${branch}+)${RESET}"
-        }
-        "${ANY}(Changes not staged for commit|Untracked files):${ANY}" {
-            return " ${YELLOW}(${branch}*)${RESET}"
-        }
-        "${ANY}fix conflicts${ANY}" {
-            return " ${RED}(${branch}!)${RESET}"
-        }
+    # Parse for the other states; color priority:
+    # red (conflict) > magenta (staged) > yellow (modified) > green (clean)
+    $color = $BLACK
+    $marks = ""
+
+    # These can occur independently of each other
+    # Check in reverse order of color priority so that highest takes precedence
+    if ($status | Select-String "nothing to commit, working tree clean") {
+        $color = $GREEN
+    }
+    if ($status | Select-String "(Changes not staged for commit|Untracked files):") {
+        $color = $YELLOW
+        $marks += "*"
+    }
+    if ($status | Select-String "Changes to be committed:") {
+        $color = $MAGENTA
+        $marks += "+"
+    }
+    if ($status | Select-String "fix conflicts") {
+        $color = $RED
+        $marks += "!"
     }
 
-    # Shouldn't happen but who knows, at least I'll get a color
-    return " ${CYAN}(${branch}?)${RESET}"
+    # Get the HEAD SHA
+    $SHA = (git rev-parse --short HEAD)
+
+    # Get the branch name if possible
+    $match = $status | Select-String "On branch (.+)"
+    # Probably in detached HEAD mode, use the tag if applicable
+    if ($null -eq $match) {
+        $match = $status | Select-String "HEAD detached at (.+)"
+        # Some other problem, I have no idea
+        if ($null -eq $match) { return "" }
+        $detachedState = "${RED}DETACHED${RESET} "
+    }
+    # If matched first time, uses the branch name
+    # Otherwise, uses the tag name if available, else the SHA
+    $branchName = $match.Matches.Groups[1].Value
+
+    $branch = "${color}(${branchName}${marks})${RESET}"
+    return " ${detachedState}${CYAN}${SHA}${RESET} ${branch}"
 }
 
 <# Override default shell prompt #>
 function prompt {
     # Abbreviate the path part to use ~ for home and show at most two
     # layers deep from cwd, while still including ~ or the drive root.
+    #
     # For example:
-    # ~\...\classes\Fall 22 PS>
+    # ~\...\classes\Fall 22
+    # PS>
+    #
+    # With a venv active and git repository detected:
+    # (.venv) ~\repos\counters c700bb7 (main)
+    # └─(counters) PS>
 
     $cwd = "$(Get-Location)"
     $root = "$(Get-Item \)"
