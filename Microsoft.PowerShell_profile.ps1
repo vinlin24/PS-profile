@@ -461,56 +461,6 @@ function Reset-VirtualEnv {
     }
 }
 
-<# Shortcut for git commit --amend #>
-function Edit-PreviousCommit {
-    # Optional message to pass to -m option
-    # If not included, use --no-edit switch
-    param (
-        [Parameter()]
-        [string] $Message
-    )
-    if ($Message -eq "") {
-        git commit --amend --no-edit
-    }
-    elseif ($Message.Length -le 50) {
-        git commit --amend -m $Message
-    }
-    # Disallow messages longer than 50 characters
-    else {
-        $excess = $Message.Length - 50
-        Write-Host "Your message should be <= 50 characters in length. It is currently $excess characters too long. Aborted." -ForegroundColor Red
-    }
-}
-
-<# Shortcut for opening Git hook files since they're hidden in VS Code #>
-function Open-GitHook {
-    param (
-        [Parameter()]
-        [string] $Name
-    )
-    $hooksPath = ".\.git\hooks"
-    # Not a repository or the .git folder is in a bad state
-    if (!(Test-Path $hooksPath)) {
-        Write-Host "Directory is not a repository or missing the .git/hooks directory, aborted." -ForegroundColor Red
-        return
-    }
-    # No argument: open the whole folder
-    if ($Name -eq "") {
-        code $hooksPath
-        return
-    }
-    # Otherwise open up the first file whose name is -like the input name
-    $hooks = Get-ChildItem $hooksPath
-    foreach ($file in $hooks) {
-        if ($file.Name -like "*$Name*") {
-            code $file.FullName
-            return
-        }
-    }
-    # No name -like it
-    Write-Host "Could not find a hook with a filename name similar to '$Name', aborted." -ForegroundColor Red
-}
-
 <# Shortcut for logging into engineering server #>
 function Connect-SEASnet {
     ssh "classvin@lnxsrv15.seas.ucla.edu"
