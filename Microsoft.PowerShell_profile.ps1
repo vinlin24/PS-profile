@@ -161,7 +161,7 @@ function Open-PythonVenv {
 }
 
 <# Activate Python virtual environment, creating it if necessary #>
-function Start-PythonVenv {
+function activate {
     param (
         [Parameter()]
         [string]$Name = ".venv"
@@ -222,7 +222,7 @@ function Start-PythonVenv {
 
 
 <# Get the list of verbs in a separate window #>
-function Get-VerbsGridView {
+function verbs {
     Get-Verb | Out-GridView
 }
 
@@ -254,7 +254,7 @@ function New-ItemAndMsg {
 }
 
 <# Initialize a barebones project directory #>
-function Start-ProjectDir {
+function init {
     param (
         # Complexity of template:
         # 0 - no dirs; 1 - src only; 2 - src, test; 3 - src, test, dist, build
@@ -319,7 +319,7 @@ function _prompt_dir_choice {
 }
 
 <# Open one of my repos as a workspace or directory #>
-function Open-CodeWorkspace {
+function workspace {
     param (
         [Parameter()]
         [string] $Name,
@@ -402,28 +402,28 @@ function Open-CodeWorkspace {
     }
 }
 
-function Open-ReposDirectory {
+function repos {
     Invoke-Item "$env:USERPROFILE\repos"
 }
 
-<# Open this file's containing directory in VS Code #>
-function Open-ThisProfile {
+<# Open this file's repository in VS Code #>
+function profile {
     code (Split-Path $profile -Parent)
     exit
 }
 
 <# Update pip to latest version #>
-function Update-PipVersion {
+function updatepip {
     python -m pip install --upgrade pip
 }
 
 <# Remove all __pycache__ directories and contents #>
-function Remove-AllPycache {
+function pycache {
     Get-ChildItem . __pycache__ -Directory -Recurse | Remove-Item -Recurse
 }
 
 <# Reinstall the virtual environment in current directory #>
-function Reset-VirtualEnv {
+function resetvenv {
     param (
         [Parameter()]
         [string] $Name = ".venv"
@@ -462,12 +462,12 @@ function Reset-VirtualEnv {
 }
 
 <# Shortcut for logging into engineering server #>
-function Connect-SEASnet {
+function seas {
     ssh "classvin@lnxsrv15.seas.ucla.edu"
 }
 
 <# Start command line Emacs #>
-function Start-Emacs {
+function emacs {
     param (
         [Parameter()]
         [string[]] $EmacsArgs
@@ -476,29 +476,13 @@ function Start-Emacs {
 }
 
 <# Open with Sublime Text 3 #>
-function Start-SublimeText {
+function text {
     param (
         [Parameter()]
         [string[]] $SublimeArgs
     )
     & "C:\Program Files\Sublime Text 3\sublime_text.exe" $SublimeArgs
 }
-
-<# Set aliases for custom cmdlets #>
-Set-Alias -Name "venv" -Value "Start-PythonVenv"
-Set-Alias -Name "verbs" -Value "Get-VerbsGridView"
-Set-Alias -Name "init" -Value "Start-ProjectDir"
-Set-Alias -Name "workspace" -Value "Open-CodeWorkspace"
-Set-Alias -Name "repos" -Value "Open-ReposDirectory"
-Set-Alias -Name "profile" -Value "Open-ThisProfile"
-Set-Alias -Name "updatepip" -Value "Update-PipVersion"
-Set-Alias -Name "pycache" -Value "Remove-AllPycache"
-Set-Alias -Name "resetvenv" -Value "Reset-VirtualEnv"
-Set-Alias -Name "amend" -Value "Edit-PreviousCommit"
-Set-Alias -Name "hook" -Value "Open-GitHook"
-Set-Alias -Name "seas" -Value "Connect-SEASnet"
-Set-Alias -Name "emacs" -Value "Start-Emacs"
-Set-Alias -Name "text" -Value "Start-SublimeText"
 
 <# Shortcut for reloading this script in current shell #>
 function refresh { . $profile }
