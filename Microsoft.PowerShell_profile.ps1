@@ -109,19 +109,23 @@ function prompt {
     $cwdAbbrev = $cwdAbbrev -ireplace [regex]::Escape($HOME), "~"
 
     # Part on the second line
-    $prompt = "PS> "
+    $prompt = "$([char]9492)$([char]9472)PS> "
     $venv = $env:VIRTUAL_ENV
-    # If a venv is activated, prefix prompt with name of origin directory
+    # If a venv is activated, prefix the working directory
+    # and make the prompt match elbow color
     if ($venv) {
+        $venvName = Split-Path $venv -Leaf
         $venvDir = Split-Path (Split-Path $venv -Parent) -Leaf
-        $prompt = "${GREEN}$([char]9492)$([char]9472)(${venvDir})${RESET} ${CYAN}${prompt}${RESET}"
+        $venvStatus = "${CYAN}(${venvName}@${venvDir})${RESET} "
+        $prompt = "${CYAN}${prompt}${RESET}"
     }
     else {
-        $prompt = "${CYAN}${prompt}${RESET}"
+        $venvStatus = ""
+        $prompt = "${BLUE}${prompt}${RESET}"
     }
 
     # Final combined prompt
-    "${BLUE}${cwdAbbrev}${RESET}$(Get-BranchState)`n${prompt}"
+    "${venvStatus}${BLUE}${cwdAbbrev}${RESET}$(Get-BranchState)`n${prompt}"
 }
 
 <# Colorized ls from https://github.com/joonro/Get-ChildItemColor #>
@@ -156,6 +160,7 @@ function Open-PythonVenv {
     )
     Write-Host "Activating Python virtual environment $Path..." -NoNewline -ForegroundColor Yellow
     $activatePath = Join-Path -Path $Path -ChildPath "\Scripts\Activate.ps1"
+    # Override default prompt so my PS prompt can deal with it
     try { & $activatePath }
     finally { Write-CompletionStatus }
 }
