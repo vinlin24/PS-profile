@@ -53,7 +53,7 @@ function Get-BranchState () {
         $match = $status | Select-String "HEAD detached at (.+)"
         # Some other problem, I have no idea
         if ($null -eq $match) { return "" }
-        $detachedText = "${ESC}[5mDETACHED${ESC}[25m "
+        $detachedText = "${ESC}[2mDETACHED${ESC}[22m "
     }
     $branchName = $match.Matches.Groups[1].Value
 
