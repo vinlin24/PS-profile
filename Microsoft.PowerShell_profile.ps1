@@ -14,7 +14,7 @@ $WHITE = "$ESC[1;37m"
 
 
 <# Helper function for prompt #>
-function Get-BranchState () {
+function get_branch_state () {
     # Otherwise determine the color and symbols from the status
     # Use the same notation as VS Code in the bottom left corner:
     # '*' for modified, '+' for staged, '*+' for both, '!' for conflict
@@ -58,6 +58,16 @@ function Get-BranchState () {
     $branchName = $match.Matches.Groups[1].Value
 
     return " => ${color}${detachedText}${branchName}${marks}${RESET}"
+}
+
+function get_python_state {
+    $venv = $env:VIRTUAL_ENV
+    if ($venv) {
+        $venvName = Split-Path $venv -Leaf
+        $venvDir = Split-Path (Split-Path $venv -Parent) -Leaf
+        $pythonVersion = (python --version) -replace "Python " , ""
+        return "${CYAN}(${venvName}@${venvDir}: ${pythonVersion})${RESET} "
+    }
 }
 
 <# Override default shell prompt #>
@@ -110,22 +120,16 @@ function prompt {
 
     # Part on the second line
     $prompt = "$([char]9492)$([char]9472)PS> "
-    $venv = $env:VIRTUAL_ENV
-    # If a venv is activated, prefix the working directory
-    # and make the prompt match elbow color
-    if ($venv) {
-        $venvName = Split-Path $venv -Leaf
-        $venvDir = Split-Path (Split-Path $venv -Parent) -Leaf
-        $venvStatus = "${CYAN}(${venvName}@${venvDir})${RESET} "
+    $pythonState = get_python_state
+    if ($pythonState) {
         $prompt = "${CYAN}${prompt}${RESET}"
     }
     else {
-        $venvStatus = ""
         $prompt = "${BLUE}${prompt}${RESET}"
     }
 
     # Final combined prompt
-    "${venvStatus}${BLUE}${cwdAbbrev}${RESET}$(Get-BranchState)`n${prompt}"
+    "${pythonState}${BLUE}${cwdAbbrev}${RESET}$(get_branch_state)`n${prompt}"
 }
 
 <# Colorized ls from https://github.com/joonro/Get-ChildItemColor #>
