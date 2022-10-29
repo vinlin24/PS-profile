@@ -80,8 +80,8 @@ function prompt {
     # PS>
     #
     # With a venv active and git repository detected:
-    # (.venv) ~\repos\counters => main
-    # └─(counters) PS>
+    # (.venv@counters: 3.10.7) ~\repos\counters => main
+    # └─PS>
 
     $cwd = "$(Get-Location)"
     $root = "$(Get-Item \)"
