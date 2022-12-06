@@ -404,12 +404,12 @@ function workspace {
             # If the repo is in the special directories, skip them
             # Since they'll be handled below
             $dirName = $repo.Parent.Name
-            if ($dirName -eq "forks" -or $dirName -eq "dump") {
+            if ($dirName -eq "clones" -or $dirName -eq "dump") {
                 continue
             }
             Write-Host $repo.Name
             # List the subdirectories of these special directories
-            if ($repo.Name -eq "forks" -or $repo.Name -eq "dump") {
+            if ($repo.Name -eq "clones" -or $repo.Name -eq "dump") {
                 Get-ChildItem $repo.FullName -Directory | ForEach-Object {
                     Write-Host "  $($_.Name)"
                 }
