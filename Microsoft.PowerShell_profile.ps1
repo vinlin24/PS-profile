@@ -348,7 +348,7 @@ function workspace {
     $repos = @(Get-ChildItem $reposDirPath -Directory)
     # Search for folders within these special folders too
     $repos += @(Get-ChildItem "$reposDirPath\dump" -Directory)
-    $repos += @(Get-ChildItem "$reposDirPath\forks" -Directory)
+    $repos += @(Get-ChildItem "$reposDirPath\clones" -Directory)
 
     $repoList = @($repos | Where-Object { $_.Name -like "*$Name*" })
     # If no arg was supplied, let the final else catch it
