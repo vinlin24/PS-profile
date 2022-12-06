@@ -584,6 +584,14 @@ function which {
     }
 }
 
+<# Getting tired of writing out Split-Path #>
+function dirname {
+    Split-Path -Parent "$($Args[0])"
+}
+function basename {
+    Split-Path -Leaf "$($Args[0])"
+}
+
 <# Current convenience cd shortcut #>
 function ucla { Set-Location "${HOME}\Documents\ucla\classes\Fall 22\CS 35L" }
 
