@@ -592,6 +592,10 @@ function basename {
     Split-Path -Leaf "$($Args[0])"
 }
 
+function bash {
+    & 'C:\Program Files\Git\bin\bash.exe'
+}
+
 <# Current convenience cd shortcut #>
 function ucla { Set-Location "${HOME}\Documents\ucla\classes\Fall 22\CS 35L" }
 
